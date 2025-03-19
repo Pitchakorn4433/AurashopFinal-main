@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "Aurashop",
+    "slug": "Aurashop",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAkFBMVEUAAAD7+/v7+/36+vr////IyMggICDw8PD39/n19ff5+fv9/f/v7/F9fX3q6uzl5edNTU3V1derq63Nzc/c3N7CwsTm5ujZ2dtbW1y6ury/v8G3t7mxsbPFxcWHh4clJSU3NzcbGxtxcXEMDAxFRUVoaGiYmJiioqSLi4tRUVEuLi6np6d4eHhjY2M8PDwdHR3/bbo9AAAK0UlEQVR4nO2dC0/cOhOGN3Zy1k6Cg7GdbG4UKNAuXTj//9994ywLe0k84ugTtSW/UlVVxVIeZjwXX5LVKioqKioqKioqKioqKioqKioqKioqKioqKioYbXa3tw9Xs9rtrh6uNosjfz4+Xs9qe/14vYX/+0YKl3Tq1vp+aeRGrDmfH0SLtODl23dyLEsWJHEpvV0a+ZqkxfxgyghhTL98J8eyZOoETJJmaeSGJkVekFlGQkhR//udHMuSBULI/1kYuV3ThJNlQrE08JvVlW4vTdLfCyO3fHkQowkRP74VZFEGJVQLI8FLFwX/lfpiQ5PnbsKEbedHuggBMV17QqiIw9n2RvwzP9JJmPhDmBUYYaJ/zo4MhVDlkLzmA+LHsz7Njtww9yhvCBlfCvkfz3ozOzIgwjJ31zVpNVu5BUOYs7IuXGkfwuLD3MhQCLOC8CZ1Fzbz0TQYwjTh2skHWs+VJwER0kog5fdsNA2IMFk3GOE4MzIoQolm/bvLkaEQjvAwa71GANPd5chwCIuCVTVBSrCZBiMUwgza1YJ1NTYTL5ckgiFMSUHWEksYM8s14RAmNufLxO2mSX0xMihCVkk01ly4aUCEYD4h9cKq2ccDP5+PDIuQNyp3E166aUiEIJ2V2NLwuZsGREgTmpZKITZMu7ORARFOC2PKcGRZcX02MihCOxFHga1+n/XBQREmCatUgy0NnzUYIRGCaCUVcwLS5GyjLTBCIvTYIG56VrkFRkhLPbaps3KjaXYyMjBCwoRqsT54fZISQyPMy6ZrkPL7dKMtIEKLRUipM5MgXeJJNA2MMMlLrVqkwUjp49HIwAhJwStpFBZNjxuM4AiZaEyH7WAcH1sIZXft4KUkF+CmFdZgHB0gCojQIhIIprUyKkUIj3YwNtwZl3wjnBClbBlWfn+mxM3aaUQPCRkQdpWbkB656aZ0nnHwkBDyhTToDsanm4ZHSCBfjAqt3D4ajI1wNiM+EoKbZka7y++jjbaNcP42fCTkrFGdSd3F6edyTUiEe1Gea9lhlVuyPpyuAUJXavGQMKHrUpsWddPDRtu2Ds2G0AVDf9ErxIbJYaMNCKnjl+ElIedQuBnETWn6/uQhElJeKdMpLCW+L9dsqzIUwo/HtNV3ZnpkB+PQYABh7jgS5ychE9Ak/hJYg7E/XbPVgrHlHSufCD9ESFk15qbGCPd9MBDy8Ai5aMa+yxHC/UbbdVMzxhZ/1lNCBhOxGwSyvp9MyzVAyHlwhFN/MWA3FPYNxrWsgHBxscZLwgKK70pmfevewUgSbUcCYVnysAj3bqraoUIIpwbjUWkhwrDhZ7aYCMFNDZb0zcoSNrXgfKkN9pXQTkQ1DJgN658TYWVjTXCEdaP6ocKMeAWERlUVTMSFys1XQsaniYjWpj0QdkpXomQLRvSJ8EOEFDmfJmKH7AdT/u/qsVVai0Ujeko4TcRmHHrtNCKl0GC8WUKINSER7pejaq26vnMv19B0BMJMWjfl/hOePCEQNjJrB1G477TRu7vWTBOR57MtlLeEFCZiM8Ua7H7wD9OOkC+CI0x4qTW0UJ3zHg1IvXWdmdwUCGd+1l9CltdAOLTI3VKINYMyptGQEr0nPBVjlW6yocUueafqpjMjEApw0/AIFRgR2cFI05t+zJop6fs+D0+V56LSNpq6UyIQjoPJpNRTNPWb8HQeUgIZUUKnj1VuyXrojZJ7Nw2JcN9BZaZvkdP7NIU2ayIs53aOPSbMSamVMl1XY/vBzR+T2RaqnGuDPSac+gtw0z7DrkDTcegyOxHZTG3qMeG+v7C16RohTNRECBkx95vwVEDIyqpRY9ujdzCqoR3BTcty5mKY14S8rCYjZghhwrvWxppZN/WcsLZJv2+xOxiJPLjpZQvlNSGEmqqRYw99MHZD4WZyU2iDL6KS14SE27LGtlAzEeRE/I8ltJtQXhOeZwtCeGmbxCwbSiwlZkMnlQQjhkcI0TQbB+k2YZKKoVVKTYVbMITJtKE/Vd+m77EdDDq2ZpTC9hdnLbPXhAmz+UKrrhtq7OxJNfSdrKe1jJAIKQM3raQx0GBg52THm85W38xnL73UB2HbOk+UWBAbayDpe23DGeV2IkLlNvboccxmMFLpaSIGRAg2BCNqZbLh2X0SmNo+GAq32mvCmXmYQzQVWkGnvxswI7Y3dosmMELwUpsSpRqH3aubkKZysMv7NucHRchsrLGV29NP7NRw2bdmH2pCIpwa/RqMaJ5WqJuqHhqM6nwpwyfCGZGCMSGEVNnDCnFTSPotVG5AePqb8p4wt+FUqma3usfescT7fgQ3PSvwfCcke0LZXK1WfzAjZi1EU8FP3d0nwtl5CIhQ1jQKCK8xQnHTG3nupgEQ5qWoG2WPyyLr+wmdomlYhPasqSXUE+EzZkQ5gJuWpxMxAEI7EbW0hI9uQLuD0arm7Oi+T4SzAi/lZVk106HuzA1I06EdZRUo4XR9+xaPpiO4qbfzcIGQWEI9Ed4hixlUDMbmi2NE7wlBnDOxJ1yN6GHFYWwawY6O+YdCWO0Jf6N9cN/JRuSBEeaMlO+EP7D7Xhyq7+ZkQ98nwqUm/ohwhZ2pTca2a6bDQyERElJ8ED4ggEXdt7LmzE/CJZG8KMXhLQoCIeRtC4UbD5gQcVNSjJ2Ux41+EISE8PzX+8+9IIREDKqpji4nhEBYEMKKA+Fq7UQkBevHRpdhEZITQvdyDUQlZRTkfC8Jl2PpMeEbli/EaCCaBky4qpH94ES1ttEPjDA/IkQrN9lCf/FxdjpAwjtsLaPus0Z4aUOHjglX2GFF2o0S2gsaFCFNjwivsN3SplOCHyq3EAnfsLcpr/tRrw89ok+Erq8aHROuOvT1+22zJsV+vztIwic8msoqD5nwHumD87JTmhcBeym20UYKmUlBQiZ8cBMWRW1U7SGhQ/TsS0juu6XAZrKa5My3efgFwj/OlGgbjGkiBmTD869ZvaZIOBVGiv0Bt0AJV8hhRUqVqvavlwyVENloo6lWDfeO0BlLzwjRPphnSnjnpV8hRL/MWqgMMuL0IntPvrT6RS9F3BTAKvm+Vbr8JeHv1VcJ79AdDKntYs3FK9z/mr5KCG7q7qEKLe1EDJjwN0YolM4nQn8izdcI/0XclDDVsHAIL2PpaoW8dpAQLW0HVcx+UvAv6OuESINBUhE6IbKDURCmK1YETdi5bUiKyhZuRRku4TXWQpWQL0IhnP8WMEXKbyarHAiDiKXzhOiBU60tYaB1qRXaYJSSQ6Txx4Zf6i0mYRdpcl0CoT9V29cJsY22RJR52DZ8RGrThIsybEJsuSYpah5KtijmCXeIEQlnoRAu2PAF8VKSB2PDBcJVi63vi0L4Qpg45+GCl9po6jbjmvoSacbUhbgUaVYb5y/GjqS+9BYjPMvis1K+RLgasIThzXrp3AGLz2dnp7trR9phSf/zMxF/WRlJzm149G9OlwjvT49I0eTCbX2xoZkWqO1ltTxP7TvK7J/08BddX3zo+KAhPdI07pzw7hsxHJo+kgvPWBQpoZSxtahk1t48/949vG63b3eLhri/3r4+ve6ufv8ajBKcftLujZr6EmkMyRmn60qr9mb3un18+fFfnOvn/cvbdvN0+9yrmr2D+uKlN92v29e7f/6PUeH+x8v1w3MmxMW3yqOioqKioqKioqKioqKioqKioqKioqKioqKi/qL+B17m0y6tZ4dhAAAAAElFTkSuQmCC",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "data:image/png;base64,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",
+      "resizeMode": "contain",
+      "backgroundColor": "#161622"
+    },
+    "ios": {
+      "bundleIdentifier": "com.itgenius.aurashop",
+      "supportsTablet": true,
+      "userInterfaceStyle": "automatic",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to let you upload profile photos.",
+        "NSPhotoLibraryUsageDescription": "This app uses the photo library to let you upload profile photos."
+      }
+    },
+    "android": {
+      "package": "com.itgenius.aurashop",
+      "versionCode": 1,
+      "ndkVersion": "26.0.10792818",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-localization",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends.",
+          "cameraPermission": "The app accesses your camera to let you share photos with your friends."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
