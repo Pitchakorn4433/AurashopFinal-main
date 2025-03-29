@@ -1,274 +1,287 @@
 // นำเข้า libraries และ components ที่จำเป็น
-import React, { useEffect, useState } from "react"
-import { FlatList, RefreshControl, Image, ActivityIndicator, TouchableOpacity, SafeAreaView } from "react-native"
-import { View, Text } from "@/components/Themed"
-import ProductCard from "@/components/ProductCard"
-import HorizontalCard from "@/components/HorizontalCard"
-import SearchInput from "@/components/SearchInput"
-import { useAuth } from "@/providers/AuthProvider"
-import { supabase } from "@/utils/supabase"
-import { formatDistanceToNow, parseISO } from 'date-fns'
-import { th } from 'date-fns/locale'
-import { toZonedTime } from 'date-fns-tz'
-import { useTheme } from '@/providers/ThemeProvider'
-import { useRouter } from 'expo-router'
-import _ from 'lodash'
-import { LogBox } from 'react-native'
+import React, { useEffect, useState } from "react";
+import {
+  FlatList,
+  RefreshControl,
+  Image,
+  ActivityIndicator,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
+import { View, Text } from "@/components/Themed";
+import ProductCard from "@/components/ProductCard";
+import HorizontalCard from "@/components/HorizontalCard";
+import SearchInput from "@/components/SearchInput";
+import { useAuth } from "@/providers/AuthProvider";
+import { supabase } from "@/utils/supabase";
+import { formatDistanceToNow, parseISO } from "date-fns";
+import { th } from "date-fns/locale";
+import { toZonedTime } from "date-fns-tz";
+import { useTheme } from "@/providers/ThemeProvider";
+import { useRouter } from "expo-router";
+import _ from "lodash";
+import { LogBox } from "react-native";
 
 // กำหนดประเภทของข้อมูลสินค้า
 type Product = {
-  id: number
-  title: string
-  price: number
-  description: string
-  created_at: string
-  hilight: boolean
-  location: string
+  id: number;
+  title: string;
+  price: number;
+  description: string;
+  created_at: string;
+  hilight: boolean;
+  location: string;
   product_images?: {
-    image_url: string
-  }[]
-}
+    image_url: string;
+  }[];
+};
 
 // ฟังก์ชันสำหรับจัดรูปแบบวันที่
 const formatDate = (dateString: string) => {
   try {
-    const utcDate = parseISO(dateString) // แปลงวันที่เป็นวันที่ UTC
-    const bangkokDate = toZonedTime(utcDate, 'Asia/Bangkok') // แปลงวันที่เป็นวันที่ของไทย
-    const relativeTime = formatDistanceToNow(bangkokDate, { 
+    const utcDate = parseISO(dateString); // แปลงวันที่เป็นวันที่ UTC
+    const bangkokDate = toZonedTime(utcDate, "Asia/Bangkok"); // แปลงวันที่เป็นวันที่ของไทย
+    const relativeTime = formatDistanceToNow(bangkokDate, {
       addSuffix: true,
-      locale: th 
-    })
-    return relativeTime
+      locale: th,
+    });
+    return relativeTime;
   } catch (error) {
-    console.error('Error formatting date:', error) // กรณีมีข้อผิดพลาดในการแปลงวันที่
-    return dateString // ส่งคืนวันที่เดิมถ้ามีข้อผิดพลาด
+    console.error("Error formatting date:", error); // กรณีมีข้อผิดพลาดในการแปลงวันที่
+    return dateString; // ส่งคืนวันที่เดิมถ้ามีข้อผิดพลาด
   }
-}
+};
 
 export default function Home() {
-  const { session } = useAuth() // สถานะของผู้ใช้
-  const [products, setProducts] = useState<Product[]>([]) // สินค้าทั้งหมด
-  const [hilightProducts, setHilightProducts] = useState<Product[]>([]) // สินค้าแนะนำ
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]) // สินค้าที่กรอง
-  const [searchQuery, setSearchQuery] = useState("") // คำค้นหา
-  const [refreshing, setRefreshing] = useState(false) // สถานะกำลังรีเฟรช
-  const { theme } = useTheme() // สถานะของธีม
-  const router = useRouter() // เครื่องมือสำหรับการเปลี่ยนหน้า
+  const { session } = useAuth(); // สถานะของผู้ใช้
+  const [products, setProducts] = useState<Product[]>([]); // สินค้าทั้งหมด
+  const [hilightProducts, setHilightProducts] = useState<Product[]>([]); // สินค้าแนะนำ
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]); // สินค้าที่กรอง
+  const [searchQuery, setSearchQuery] = useState(""); // คำค้นหา
+  const [refreshing, setRefreshing] = useState(false); // สถานะกำลังรีเฟรช
+  const { theme } = useTheme(); // สถานะของธีม
+  const router = useRouter(); // เครื่องมือสำหรับการเปลี่ยนหน้า
 
-  const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+  const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error("Missing Supabase environment variables") // กรณีขาดตัวแปรสำหรับ Supabase
-  } 
+    throw new Error("Missing Supabase environment variables"); // กรณีขาดตัวแปรสำหรับ Supabase
+  }
 
   // สถานะสำหรับจัดการ pagination
-  const [page, setPage] = useState(0) // หน้าเริ่มต้น
-  const [isLoadingMore, setIsLoadingMore] = useState(false) // สถานะกำลังโหลดเพิ่ม
-  const [hasMore, setHasMore] = useState(true) // สถานะว่ายังมีข้อมูลให้โหลดอีกหรือไม่
-  const ITEMS_PER_PAGE = 3 // จำนวนรายการที่จะโหลดต่อหน้า
+  const [page, setPage] = useState(0); // หน้าเริ่มต้น
+  const [isLoadingMore, setIsLoadingMore] = useState(false); // สถานะกำลังโหลดเพิ่ม
+  const [hasMore, setHasMore] = useState(true); // สถานะว่ายังมีข้อมูลให้โหลดอีกหรือไม่
+  const ITEMS_PER_PAGE = 3; // จำนวนรายการที่จะโหลดต่อหน้า
 
   // เพิ่ม state สำหรับการค้นหา
-  const [isSearching, setIsSearching] = useState(false)
+  const [isSearching, setIsSearching] = useState(false);
 
   // เพิ่ม state สำหรับเก็บ URL รูปโปรไฟล์
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   // เพิ่มฟังก์ชันดึงข้อมูลโปรไฟล์
   const fetchProfile = async () => {
     try {
-      if (!session?.user?.id) return
+      if (!session?.user?.id) return;
 
       const { data, error } = await supabase
-        .from('profiles')
-        .select('avatar_url')
-        .eq('id', session.user.id)
-        .single()
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", session.user.id)
+        .single();
 
-      if (error) throw error
+      if (error) throw error;
       if (data?.avatar_url) {
-        setAvatarUrl(data.avatar_url)
+        setAvatarUrl(data.avatar_url);
       }
     } catch (error) {
-      console.error('Error fetching profile:', error)
+      console.error("Error fetching profile:", error);
     }
-  }
+  };
 
   // เรียกใช้ฟังก์ชันเมื่อ session เปลี่ยน
   useEffect(() => {
     if (session?.user) {
-      fetchProfile()
+      fetchProfile();
     }
-  }, [session])
+  }, [session]);
 
   // ฟังก์ชันค้นหาจาก Supabase
   const searchProducts = async (searchText: string) => {
     try {
-      setIsSearching(true)
-      
+      setIsSearching(true);
+
       const { data, error, count } = await supabase
-        .from('products')
-        .select(`
+        .from("products")
+        .select(
+          `
           *,
           product_images (
             image_url
           )
-        `, { count: 'exact' })
-        .ilike('title', `%${searchText}%`)
+        `,
+          { count: "exact" }
+        )
+        .ilike("title", `%${searchText}%`)
         .range(0, ITEMS_PER_PAGE - 1)
-        .order('created_at', { ascending: false })
+        .order("created_at", { ascending: false });
 
-      if (error) throw error
+      if (error) throw error;
 
-      setFilteredProducts(data || [])
-      setHasMore(count ? count > ITEMS_PER_PAGE : false)
-      setPage(0)
-      
+      setFilteredProducts(data || []);
+      setHasMore(count ? count > ITEMS_PER_PAGE : false);
+      setPage(0);
     } catch (error) {
-      console.error('🔍 ค้นหาผิดพลาด:', error)
+      console.error("🔍 ค้นหาผิดพลาด:", error);
     } finally {
-      setIsSearching(false)
+      setIsSearching(false);
     }
-  }
+  };
 
   // ใช้ debounce เพื่อลดการเรียก API บ่อยเกินไป
   const debouncedSearch = _.debounce((text: string) => {
-    searchProducts(text)
-  }, 500)
+    searchProducts(text);
+  }, 500);
 
   // ฟังก์ชันจัดการการค้นหา
   const handleSearch = (text: string) => {
-    setSearchQuery(text)
-    
+    setSearchQuery(text);
+
     if (text.trim() === "") {
-      setFilteredProducts(products) // โหลดสินค้าทั้งหมดกลับมา
-      setHasMore(true) // รีเซ็ตสถานะว่ามีข้อมูลให้โหลดอีกหรือไม่
-      setPage(0) // รีเซ็ตหน้าเริ่มต้น
-      return
+      setFilteredProducts(products); // โหลดสินค้าทั้งหมดกลับมา
+      setHasMore(true); // รีเซ็ตสถานะว่ามีข้อมูลให้โหลดอีกหรือไม่
+      setPage(0); // รีเซ็ตหน้าเริ่มต้น
+      return;
     }
 
-    debouncedSearch(text)
-  }
+    debouncedSearch(text);
+  };
 
   // ฟัก์ชันดึงข้อมูลสินค้าแนะนำ
   const fetchHilightProducts = async () => {
     try {
       const { data, error } = await supabase
-        .from('products')
-        .select(`
+        .from("products")
+        .select(
+          `
           *,
           product_images (
             image_url
           )
-        `)
-        .eq('hilight', true)
-        .order('created_at', { ascending: false })
+        `
+        )
+        .eq("hilight", true)
+        .order("created_at", { ascending: false });
 
-      if (error) throw error
-      setHilightProducts(data || []) // กำหนดค่าเริ่มต้นสำหรับสินค้าแนะนำ
+      if (error) throw error;
+      setHilightProducts(data || []); // กำหนดค่าเริ่มต้นสำหรับสินค้าแนะนำ
     } catch (error) {
-      console.error("Error fetching hilight products:", error)
+      console.error("Error fetching hilight products:", error);
     }
-  }
+  };
 
   // ฟังก์ชันดึงข้อมูลสินค้าพร้อมการจัดการ pagination
   const fetchProducts = async (pageNumber = 0) => {
     try {
-      const from = pageNumber * ITEMS_PER_PAGE
-      console.log('🔍 กำลังดึงข้อมูลหน้า:', {
+      const from = pageNumber * ITEMS_PER_PAGE;
+      console.log("🔍 กำลังดึงข้อมูลหน้า:", {
         page: pageNumber,
         from,
-        to: from + ITEMS_PER_PAGE - 1
-      })
-      
-      const { count } = await supabase
-        .from('products')
-        .select('*', { count: 'exact', head: true })
+        to: from + ITEMS_PER_PAGE - 1,
+      });
 
-      console.log('📊 จำนวนสินค้าทั้งหมด:', count)
+      const { count } = await supabase
+        .from("products")
+        .select("*", { count: "exact", head: true });
+
+      console.log("📊 จำนวนสินค้าทั้งหมด:", count);
 
       if (count && from >= count) {
-        console.log('⚠️ ไม่มีข้อมูลเพิ่มเติม')
-        setHasMore(false)
-        return
+        console.log("⚠️ ไม่มีข้อมูลเพิ่มเติม");
+        setHasMore(false);
+        return;
       }
 
-      const to = from + ITEMS_PER_PAGE - 1
+      const to = from + ITEMS_PER_PAGE - 1;
 
       const { data, error } = await supabase
-        .from('products')
-        .select(`
+        .from("products")
+        .select(
+          `
           *,
           product_images (
             image_url
           )
-        `)
+        `
+        )
         .range(from, to)
-        .order('created_at', { ascending: false })
+        .order("created_at", { ascending: false });
 
-      if (error) throw error
+      if (error) throw error;
 
-      setHasMore(count ? from + ITEMS_PER_PAGE < count : false)
+      setHasMore(count ? from + ITEMS_PER_PAGE < count : false);
 
       if (pageNumber === 0) {
-        setProducts(data || []) // กำหนดค่าเริ่มต้นสำหรับสินค้า
+        setProducts(data || []); // กำหนดค่าเริ่มต้นสำหรับสินค้า
       } else {
-        setProducts(prev => [...prev, ...(data || [])])
+        setProducts((prev) => [...prev, ...(data || [])]);
       }
     } catch (error) {
-      console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูล:", error)
-      setHasMore(false)
+      console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูล:", error);
+      setHasMore(false);
     }
-  }
+  };
 
   // ฟังก์ชันโหลดข้อมูลเพิ่มเติมเมื่อเลื่อนถึงจุดสิ้นสุดของรายการ
   const loadMore = async () => {
     // ถ้ากำลังโหลดอยู่หรือไม่มีข้อมูลเพิ่มเติม ให้หยุดการทำงาน
     if (isLoadingMore || !hasMore) {
-      console.log('🚫 ไม่สามารถโหลดเพิ่มได้:', { 
-        isLoadingMore, 
+      console.log("🚫 ไม่สามารถโหลดเพิ่มได้:", {
+        isLoadingMore,
         hasMore,
-        currentPage: page 
-      })
-      return
+        currentPage: page,
+      });
+      return;
     }
 
-    console.log('📥 เริ่มโหลดข้อมูลเพิ่มเติม:', {
+    console.log("📥 เริ่มโหลดข้อมูลเพิ่มเติม:", {
       currentPage: page,
-      nextPage: page + 1
-    })
+      nextPage: page + 1,
+    });
 
-    setIsLoadingMore(true)
-    await fetchProducts(page + 1)
-    setPage(prev => prev + 1)
-    setIsLoadingMore(false)
+    setIsLoadingMore(true);
+    await fetchProducts(page + 1);
+    setPage((prev) => prev + 1);
+    setIsLoadingMore(false);
 
-    console.log('✅ โหลดข้อมูลเพิ่มเติมเสร็จสิ้น:', {
+    console.log("✅ โหลดข้อมูลเพิ่มเติมเสร็จสิ้น:", {
       newPage: page + 1,
-      totalItems: products.length
-    })
-  }
+      totalItems: products.length,
+    });
+  };
 
   // ฟังก์ชันรีเฟรชข้อมูลสินค้า
   const onRefresh = async () => {
-    setRefreshing(true) // เปลี่ยนสถานะเป็นกำลังรีเฟรช
-    setPage(0) // รีเซ็ตหน้าเริ่มต้น
-    setHasMore(true) // รีเซ็ตสถานะว่ามีข้อมูลให้โหลดอีกหรือไม่
+    setRefreshing(true); // เปลี่ยนสถานะเป็นกำลังรีเฟรช
+    setPage(0); // รีเซ็ตหน้าเริ่มต้น
+    setHasMore(true); // รีเซ็ตสถานะว่ามีข้อมูลให้โหลดอีกหรือไม่
     await Promise.all([
       fetchProducts(0), // ดึงข้อมูลสินค้าใหม่
-      fetchHilightProducts() // ดึงข้อมูลสินค้าแนะนำใหม่
-    ])
-    setRefreshing(false)
-  }
+      fetchHilightProducts(), // ดึงข้อมูลสินค้าแนะนำใหม่
+    ]);
+    setRefreshing(false);
+  };
 
   useEffect(() => {
-    setFilteredProducts(products) // กำหนดค่าเริ่มต้นสำหรับสินค้าที่กรอง
-  }, [products])
+    setFilteredProducts(products); // กำหนดค่าเริ่มต้นสำหรับสินค้าที่กรอง
+  }, [products]);
 
   // ฟังก์ชันจัดการการกดสินค้าแนะนำ
   const handleHorizontalCardPress = (product: Product) => {
     router.push({
-      pathname: '/productdetail',
+      pathname: "/productdetail",
       params: {
         id: product.id,
         title: product.title,
@@ -276,15 +289,15 @@ export default function Home() {
         description: product.description,
         image: product.product_images?.[0]?.image_url,
         created_at: product.created_at,
-        location: product.location
-      }
-    })
-  }
+        location: product.location,
+      },
+    });
+  };
 
   // ฟังก์ชันจัดการการกดสินค้า
   const handleProductCardPress = (product: Product) => {
     router.push({
-      pathname: '/productdetail',
+      pathname: "/productdetail",
       params: {
         id: product.id,
         title: product.title,
@@ -292,17 +305,17 @@ export default function Home() {
         description: product.description,
         image: product.product_images?.[0]?.image_url,
         created_at: product.created_at,
-        location: product.location
-      }
-    })
-  }
+        location: product.location,
+      },
+    });
+  };
 
   useEffect(() => {
     const initializeProducts = async () => {
       setRefreshing(true); // เปลี่ยนสถานะเป็นกำลังรีเฟรช
       await Promise.all([
         fetchProducts(0), // ดึงข้อมูลสินค้าใหม่
-        fetchHilightProducts()
+        fetchHilightProducts(),
       ]);
       setRefreshing(false); // อัปเดตสถานะเป็นไม่กำลังรีเฟรช
     };
@@ -324,29 +337,36 @@ export default function Home() {
                     ยินดีต้อนรับ
                   </Text>
                   <Text className="text-2xl text-white">
-                    {session?.user?.user_metadata?.displayName || 'บุคคลทั่วไป'}
+                    {session?.user?.user_metadata?.displayName || "บุคคลทั่วไป"}
                   </Text>
                 </View>
 
                 <View className="mt-1.5">
-                  <TouchableOpacity onPress={() => router.push('/(tabs)/profile')}>
+                  <TouchableOpacity
+                    onPress={() => router.push("/(tabs)/profile")}
+                  >
                     <Image
-                      source={{ 
-                        uri: avatarUrl || 'https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png',
-                        cache: 'reload'
+                      source={{
+                        uri:
+                          avatarUrl ||
+                          "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
+                        cache: "reload",
                       }}
                       className="w-10 h-10 rounded-full"
                       onError={(e) => {
-                        console.error('Image loading error:', e.nativeEvent.error)
-                        setAvatarUrl(null)
+                        console.error(
+                          "Image loading error:",
+                          e.nativeEvent.error
+                        );
+                        setAvatarUrl(null);
                       }}
                     />
                   </TouchableOpacity>
                 </View>
               </View>
 
-              <SearchInput 
-                initialQuery={searchQuery} 
+              <SearchInput
+                initialQuery={searchQuery}
                 onChangeText={handleSearch}
                 placeholder="ค้นหาสินค้า..."
               />
@@ -371,7 +391,10 @@ export default function Home() {
                     keyExtractor={(item) => `hilight_${item.id}`}
                     renderItem={({ item }) => (
                       <HorizontalCard
-                        image={item.product_images?.[0]?.image_url || 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'}
+                        image={
+                          item.product_images?.[0]?.image_url ||
+                          "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
+                        }
                         title={item.title}
                         onPress={() => handleHorizontalCardPress(item)}
                       />
@@ -380,9 +403,7 @@ export default function Home() {
                     className="mt-4"
                     ListEmptyComponent={() => (
                       <View className="px-4">
-                        <Text className="text-gray-500">
-                          ไม่มีสินค้าแนะนำ
-                        </Text>
+                        <Text className="text-gray-500">ไม่มีสินค้าแนะนำ</Text>
                       </View>
                     )}
                   />
@@ -391,9 +412,9 @@ export default function Home() {
             </View>
           )}
           ItemSeparatorComponent={() => (
-            <View 
+            <View
               className={`h-[1px] mx-8 ${
-                theme === 'dark' ? 'bg-gray-200' : 'bg-gray-200'
+                theme === "dark" ? "bg-gray-200" : "bg-gray-200"
               }`}
             />
           )}
@@ -403,7 +424,10 @@ export default function Home() {
             <ProductCard
               productname={item.title}
               productprice={`฿${item.price.toLocaleString()}`}
-              productimage={item.product_images?.[0]?.image_url || 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'}
+              productimage={
+                item.product_images?.[0]?.image_url ||
+                "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
+              }
               postDate={formatDate(item.created_at)}
               description={item.description}
               onPress={() => handleProductCardPress(item)}
@@ -412,7 +436,7 @@ export default function Home() {
           ListEmptyComponent={() => (
             <View className="p-4">
               <Text className="text-center">
-                {searchQuery.trim() ? 'ไม่พบสินค้าที่ค้นหา' : 'ไม่พบสินค้า'}
+                {searchQuery.trim() ? "ไม่พบสินค้าที่ค้นหา" : "ไม่พบสินค้า"}
               </Text>
             </View>
           )}
@@ -421,15 +445,15 @@ export default function Home() {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-          ListFooterComponent={() => (
+          ListFooterComponent={() =>
             isLoadingMore ? (
               <View className="py-4">
                 <ActivityIndicator size="small" />
               </View>
             ) : null
-          )}
+          }
         />
       </View>
     </SafeAreaView>
-  )
+  );
 }
